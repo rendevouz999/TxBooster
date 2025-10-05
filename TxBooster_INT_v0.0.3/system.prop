@@ -1,0 +1,4 @@
+# System properties tambahan untuk TxBooster_INT
+# Contoh: default MTU, buffer size
+txbooster.default_mtu=1500
+txbooster.default_txqueuelen=1000
