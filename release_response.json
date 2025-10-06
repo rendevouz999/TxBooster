@@ -1,5 +1,5 @@
 {
-  "message": "Bad credentials",
-  "documentation_url": "https://docs.github.com/rest",
-  "status": "401"
+  "message": "Problems parsing JSON",
+  "documentation_url": "https://docs.github.com/rest/releases/releases#create-a-release",
+  "status": "400"
 }

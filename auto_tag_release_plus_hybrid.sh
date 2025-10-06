@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
-# 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload)
-# Version : 1.4
+# 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
+# Version : 1.6 (Final)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -32,7 +32,7 @@ echo "📁 Default project path: $DEFAULT_PATH"
 # 🧩 Ensure token exists
 if [ ! -f "$TOKEN_FILE" ]; then
   echo "❌ GitHub token belum diset."
-  echo "👉 Jalankan: echo '<your_token_here>' > ~/.github_token"
+  echo "👉 Jalankan: echo -n '<your_token_here>' > ~/.github_token"
   echo "Pastikan token punya scope: repo, workflow"
   exit 1
 fi
@@ -56,7 +56,7 @@ fi
 # 🧩 Check if git is installed
 if ! command -v git &> /dev/null; then
   echo "❌ git belum terinstal."
-  echo "👉 Jalankan: pkg install git -y  (di Termux)"
+  echo "👉 Jalankan: pkg install git -y (di Termux)"
   echo "   atau install Git di Windows jika belum ada."
   exit 1
 fi
@@ -70,7 +70,6 @@ MESSAGE="TxBooster_INT $TAG — Hybrid AI Policy Release"
 git add .
 git commit -m "$MESSAGE" || true
 
-# handle existing tag safely
 if git rev-parse "$TAG" >/dev/null 2>&1; then
   echo "⚠️  Tag $TAG sudah ada, menghapus dan membuat ulang..."
   git tag -d "$TAG"
@@ -87,31 +86,42 @@ RELEASE_NOTE_FILE="docs/RELEASE_NOTE_${TAG}.md"
 if [ ! -f "$RELEASE_NOTE_FILE" ]; then
   RELEASE_NOTE_FILE="docs/RELEASE_NOTE_v0.0.5.md"
 fi
-BODY=$(jq -Rs . < "$RELEASE_NOTE_FILE")
 
-# 🧩 Create draft release
+# 🧩 Create draft release (no jq)
+if [ -f "$RELEASE_NOTE_FILE" ]; then
+  echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
+  BODY_ESCAPED=$(awk '{printf "%s\\n", $0}' "$RELEASE_NOTE_FILE" | sed 's/"/\\"/g')
+else
+  echo "⚠️ File release note tidak ditemukan, menggunakan pesan default."
+  BODY_ESCAPED="TxBooster_INT $TAG Auto Release"
+fi
+
+JSON_PAYLOAD=$(cat <<EOF
+{
+  "tag_name": "$TAG",
+  "target_commitish": "main",
+  "name": "$MESSAGE",
+  "body": "$BODY_ESCAPED",
+  "draft": false,
+  "prerelease": false
+}
+EOF
+)
+
 curl -s -X POST \
   -H "Authorization: token $TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{
-    \"tag_name\": \"$TAG\",
-    \"target_commitish\": \"main\",
-    \"name\": \"$MESSAGE\",
-    \"body\": $BODY,
-    \"draft\": true,
-    \"prerelease\": false
-  }" \
+  -d "$JSON_PAYLOAD" \
   "$GITHUB_API/repos/$REPO_OWNER/$REPO_NAME/releases" \
   > release_response.json
 
-RELEASE_URL=$(jq -r '.html_url' release_response.json 2>/dev/null)
-RELEASE_ID=$(jq -r '.id' release_response.json 2>/dev/null)
+RELEASE_URL=$(grep -o '"html_url": *"[^"]*' release_response.json | cut -d'"' -f4)
+RELEASE_ID=$(grep -o '"id": *[0-9]*' release_response.json | head -1 | grep -o '[0-9]*')
 
-if [ "$RELEASE_URL" != "null" ] && [ -n "$RELEASE_ID" ]; then
-  echo "🎉 Draft release berhasil dibuat!"
+if [ -n "$RELEASE_ID" ]; then
+  echo "🎉 Release berhasil dibuat!"
   echo "🔗 $RELEASE_URL"
 
-  # 🧩 Upload Magisk ZIP automatically
   ASSET_FILE="TxBooster_INT_${TAG}_HybridSync_Final.zip"
   if [ -f "$ASSET_FILE" ]; then
     echo "⬆️  Mengupload $ASSET_FILE ke release..."
@@ -122,8 +132,8 @@ if [ "$RELEASE_URL" != "null" ] && [ -n "$RELEASE_ID" ]; then
       "$GITHUB_UPLOAD/repos/$REPO_OWNER/$REPO_NAME/releases/$RELEASE_ID/assets?name=$ASSET_FILE" \
       > upload_response.json
 
-    DOWNLOAD_URL=$(jq -r '.browser_download_url' upload_response.json 2>/dev/null)
-    if [ "$DOWNLOAD_URL" != "null" ]; then
+    DOWNLOAD_URL=$(grep -o '"browser_download_url": *"[^"]*' upload_response.json | cut -d'"' -f4)
+    if [ -n "$DOWNLOAD_URL" ]; then
       echo "✅ Upload selesai!"
       echo "📦 File tersedia di:"
       echo "🔗 $DOWNLOAD_URL"
@@ -134,5 +144,5 @@ if [ "$RELEASE_URL" != "null" ] && [ -n "$RELEASE_ID" ]; then
     echo "⚠️  File $ASSET_FILE tidak ditemukan, skip upload."
   fi
 else
-  echo "⚠️  Gagal membuat draft release. Lihat release_response.json untuk debug."
+  echo "⚠️  Gagal membuat release. Lihat release_response.json untuk debug."
 fi
