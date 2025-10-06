@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
-# Version : 1.7 (Stable JSON Fix)
+# Version : 1.7a (Windows Safe JSON Fix)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -81,9 +81,22 @@ if [ ! -f "$RELEASE_NOTE_FILE" ]; then
 fi
 echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
 
+# 🧩 Safe temp file creation (works on Windows + Linux)
+if [ -d "/tmp" ]; then
+  TMP_JSON=$(mktemp)
+else
+  TMP_JSON="$TEMP/tmp_payload_$$.json"
+fi
+
+# 🧩 Choose python executable automatically
+PYTHON=$(command -v python3 || command -v python)
+if [ -z "$PYTHON" ]; then
+  echo "❌ Python tidak ditemukan di PATH."
+  exit 1
+fi
+
 # 🧩 Create JSON payload safely using Python
-TMP_JSON=$(mktemp)
-python - <<PY
+$PYTHON - <<PY
 import json, sys, pathlib
 body = pathlib.Path("$RELEASE_NOTE_FILE").read_text(encoding="utf-8")
 payload = {
@@ -94,8 +107,8 @@ payload = {
   "draft": False,
   "prerelease": False
 }
-pathlib.Path("$TMP_JSON").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
-print(f"✅ Payload JSON saved: {pathlib.Path('$TMP_JSON')}")
+pathlib.Path(r"$TMP_JSON").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+print(f"✅ Payload JSON saved: {pathlib.Path(r'$TMP_JSON')}")
 PY
 
 # 🧩 Send to GitHub API
