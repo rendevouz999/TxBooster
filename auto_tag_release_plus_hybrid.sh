@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
-# Version : 1.7a (Windows Safe JSON Fix)
+# Version : 1.7b (Cross-Platform Safe Final)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -81,17 +81,20 @@ if [ ! -f "$RELEASE_NOTE_FILE" ]; then
 fi
 echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
 
-# 🧩 Safe temp file creation (works on Windows + Linux)
+# 🧩 Safe temp file creation (Cross-Platform)
 if [ -d "/tmp" ]; then
   TMP_JSON=$(mktemp)
-else
+elif [ -n "$TEMP" ]; then
   TMP_JSON="$TEMP/tmp_payload_$$.json"
+else
+  TMP_JSON="./tmp_payload_$$.json"
 fi
 
-# 🧩 Choose python executable automatically
+# 🧩 Choose Python executable automatically
 PYTHON=$(command -v python3 || command -v python)
 if [ -z "$PYTHON" ]; then
   echo "❌ Python tidak ditemukan di PATH."
+  echo "Silakan install Python (https://www.python.org/downloads/)"
   exit 1
 fi
 
@@ -129,7 +132,7 @@ RELEASE_ID=$(grep -o '"id": *[0-9]*' release_response.json | head -1 | grep -o '
 echo "🎉 Release berhasil dibuat!"
 echo "🔗 $RELEASE_URL"
 
-# 🧩 Upload asset
+# 🧩 Upload asset (Magisk Module ZIP)
 ASSET_FILE="TxBooster_INT_${TAG}_HybridSync_Final.zip"
 if [ -f "$ASSET_FILE" ]; then
   echo "⬆️  Mengupload asset: $ASSET_FILE"
