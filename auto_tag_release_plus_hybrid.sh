@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
-# Version : 1.7b (Cross-Platform Safe Final)
+# Version : 1.7d (Legacy Windows Compatible)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -81,27 +81,21 @@ if [ ! -f "$RELEASE_NOTE_FILE" ]; then
 fi
 echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
 
-# 🧩 Safe temp file creation (Cross-Platform)
-if [ -d "/tmp" ]; then
-  TMP_JSON=$(mktemp)
-elif [ -n "$TEMP" ]; then
-  TMP_JSON="$TEMP/tmp_payload_$$.json"
-else
-  TMP_JSON="./tmp_payload_$$.json"
-fi
+# 🧩 Buat file JSON di direktori proyek (no mktemp)
+TMP_JSON="./tmp_payload.json"
 
-# 🧩 Choose Python executable automatically
+# 🧩 Pilih python otomatis
 PYTHON=$(command -v python3 || command -v python)
 if [ -z "$PYTHON" ]; then
   echo "❌ Python tidak ditemukan di PATH."
-  echo "Silakan install Python (https://www.python.org/downloads/)"
   exit 1
 fi
 
-# 🧩 Create JSON payload safely using Python
-$PYTHON - <<PY
-import json, sys, pathlib
-body = pathlib.Path("$RELEASE_NOTE_FILE").read_text(encoding="utf-8")
+# 🧩 Generate JSON payload
+"$PYTHON" - <<PY
+import json, pathlib
+path = pathlib.Path(r"$RELEASE_NOTE_FILE")
+body = path.read_text(encoding="utf-8")
 payload = {
   "tag_name": "$TAG",
   "target_commitish": "main",
@@ -111,10 +105,10 @@ payload = {
   "prerelease": False
 }
 pathlib.Path(r"$TMP_JSON").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
-print(f"✅ Payload JSON saved: {pathlib.Path(r'$TMP_JSON')}")
+print("✅ Payload JSON saved to tmp_payload.json")
 PY
 
-# 🧩 Send to GitHub API
+# 🧩 Kirim ke GitHub
 HTTP_CODE=$(curl -s -o release_response.json -w '%{http_code}' \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
@@ -132,7 +126,7 @@ RELEASE_ID=$(grep -o '"id": *[0-9]*' release_response.json | head -1 | grep -o '
 echo "🎉 Release berhasil dibuat!"
 echo "🔗 $RELEASE_URL"
 
-# 🧩 Upload asset (Magisk Module ZIP)
+# 🧩 Upload asset (Magisk ZIP)
 ASSET_FILE="TxBooster_INT_${TAG}_HybridSync_Final.zip"
 if [ -f "$ASSET_FILE" ]; then
   echo "⬆️  Mengupload asset: $ASSET_FILE"
