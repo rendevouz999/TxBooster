@@ -83,7 +83,7 @@ echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
 
 # 🧩 Create JSON payload safely using Python
 TMP_JSON=$(mktemp)
-python3 - <<PY
+python - <<PY
 import json, sys, pathlib
 body = pathlib.Path("$RELEASE_NOTE_FILE").read_text(encoding="utf-8")
 payload = {
