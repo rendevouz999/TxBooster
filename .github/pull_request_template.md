@@ -1,36 +1,42 @@
-## Pull Request - Promote v0.0.5 → main
+# 🚀 Pull Request – TxBooster_INT v0.0.5
 
-### Summary
-Promote branch v0.0.5 to `main` as the hybrid-synchronization release.
+## 📘 Deskripsi
+> _Hybrid AI Policy Build – Root + Non-Root Adaptive System_
 
-### Changed Files
-- README.md
-- README_DEV.md
-- docs/CHANGELOG_v0.0.5.md
-- docs/STRUCTURE_v0.0.5.md
-- docs/ROADMAP_v0.1.0.md
-- docs/LEGAL_NOTICE.md
-- docs/SHELTER_v0.0.6_API.md
-- module.prop
-- update.json
-- builder.sh
-- core/* (ai_sync.sh, log_manager.sh, auto_update.sh, txbooster_core.sh)
+**Author:** Jxey  
+**Email:** joefreccejunior50@gmail.com  
+**License:** MIT License  
+**Repository:** [rendevouz999/TxBooster](https://github.com/rendevouz999/TxBooster)
 
-### Testing checklist
-- [ ] Run `shellcheck` on shell scripts.
-- [ ] Start shelter prototype and post sample sync.
-- [ ] Install Magisk ZIP on test device and verify logs.
-- [ ] Verify auto-update checker against GitHub releases (dry-run).
+---
 
-### Notes
-- This PR will set `main` to v0.0.5 Hybrid-Sync.
-- All docs contain MIT license and signature block.
-- update.json included for release metadata.
+## 🔧 Perubahan Utama
+- 🤖 AI Policy Hybrid (Root & Non-root learning mode)
+- ☁️ Server Sync API (Shelter Server v0.0.6 ready)
+- 🔄 Magisk Auto-Update engine
+- 🔔 Notification Manager + Auto Log Fixer
+- 🧩 Log rotation (3-day cleanup cycle)
+- 🧠 Self-Learning database (`self_heal.db`)
 
-### Contact
-Author: Jxey  
-Email: joefreccejunior50@gmail.com
+---
 
-[BEGIN-TXB-HYBRID-SIGNATURE]
-QXV0aG9yOiBKeGV5IHwgU2lnbmVkIFdpdGggRW5jcnlwdGlvbiBTZWVkICgzZjlhMWU2YikK[ENCRYPTED]
-[END-TXB-HYBRID-SIGNATURE]
+## ✅ Checklist
+- [ ] Sudah diuji pada perangkat Root
+- [ ] Sudah diuji pada perangkat Non-Root
+- [ ] Log rotation berjalan otomatis
+- [ ] Auto-update berhasil di-trigger via GitHub
+- [ ] File signature & license MIT tersertakan
+
+---
+
+## 🔒 Metadata
+**Build Version:** `v0.0.5`  
+**Encryption Seed:** `#3f9a1e6b`  
+**Branch Target:** `main`  
+**Timestamp:** 2025-10-07  
+**Signature:** `TXBINT-HYBRID-SECURE-SIGN#3f9a1e6b`
+
+---
+
+> “A self-healing AI doesn’t just fix errors — it learns from them.”  
+> — *Jxey, 2025*
