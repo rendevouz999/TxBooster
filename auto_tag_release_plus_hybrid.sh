@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
-# Version : 1.6 (Final)
+# Version : 1.6.1 (Stable)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -87,10 +87,10 @@ if [ ! -f "$RELEASE_NOTE_FILE" ]; then
   RELEASE_NOTE_FILE="docs/RELEASE_NOTE_v0.0.5.md"
 fi
 
-# 🧩 Create draft release (no jq)
+# 🧩 Create release (safe JSON encoding for Markdown)
 if [ -f "$RELEASE_NOTE_FILE" ]; then
   echo "📄 Menggunakan release note: $RELEASE_NOTE_FILE"
-  BODY_ESCAPED=$(awk '{printf "%s\\n", $0}' "$RELEASE_NOTE_FILE" | sed 's/"/\\"/g')
+  BODY_ESCAPED=$(sed 's/"/\\"/g' "$RELEASE_NOTE_FILE" | tr -d '\r' | awk '{printf "%s\\n", $0}' | sed ':a;N;$!ba;s/\n/\\n/g')
 else
   echo "⚠️ File release note tidak ditemukan, menggunakan pesan default."
   BODY_ESCAPED="TxBooster_INT $TAG Auto Release"
@@ -109,7 +109,7 @@ EOF
 )
 
 curl -s -X POST \
-  -H "Authorization: token $TOKEN" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$JSON_PAYLOAD" \
   "$GITHUB_API/repos/$REPO_OWNER/$REPO_NAME/releases" \
@@ -126,7 +126,7 @@ if [ -n "$RELEASE_ID" ]; then
   if [ -f "$ASSET_FILE" ]; then
     echo "⬆️  Mengupload $ASSET_FILE ke release..."
     curl -s -X POST \
-      -H "Authorization: token $TOKEN" \
+      -H "Authorization: Bearer $TOKEN" \
       -H "Content-Type: application/zip" \
       --data-binary @"$ASSET_FILE" \
       "$GITHUB_UPLOAD/repos/$REPO_OWNER/$REPO_NAME/releases/$RELEASE_ID/assets?name=$ASSET_FILE" \
