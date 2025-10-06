@@ -1,6 +1,0 @@
-id=txbooster_int
-name=TxBooster_INT
-version=0.0.4
-versionCode=4
-author=rendevouz999
-description=Modul Magisk untuk optimasi txqueuelen, MTU, self-learning network, dan KsuWebUI
