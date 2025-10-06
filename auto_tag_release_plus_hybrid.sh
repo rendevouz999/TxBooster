@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 🚀 TxBooster_INT Auto Tag & Release Script (Hybrid + Upload + Publish)
-# Version : 1.7d (Legacy Windows Compatible)
+# Version : 1.7e (Legacy Windows + Safe Encoding)
 # Author  : Jxey + ChatGPT
 # License : MIT License
 # ============================================================
@@ -91,9 +91,9 @@ if [ -z "$PYTHON" ]; then
   exit 1
 fi
 
-# 🧩 Generate JSON payload
+# 🧩 Generate JSON payload (no emoji print)
 "$PYTHON" - <<PY
-import json, pathlib
+import json, pathlib, sys
 path = pathlib.Path(r"$RELEASE_NOTE_FILE")
 body = path.read_text(encoding="utf-8")
 payload = {
@@ -105,7 +105,7 @@ payload = {
   "prerelease": False
 }
 pathlib.Path(r"$TMP_JSON").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
-print("✅ Payload JSON saved to tmp_payload.json")
+print("Payload JSON saved to tmp_payload.json")
 PY
 
 # 🧩 Kirim ke GitHub
